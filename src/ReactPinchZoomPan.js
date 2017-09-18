@@ -81,12 +81,15 @@ export default class ReactPinchToZoom extends PureComponent {
     if (!hasTwoTouchPoints(event)) return
 
     event.stopPropagation()
-    this.firstEvent = event
 
     const { scale, x, y } = this.state
 
-    this.startX = x
-    this.startY = y
+    if (this.touches === 0) {
+      this.firstEvent = event
+
+      this.startX = x
+      this.startY = y
+    }
 
     if (hasTwoTouchPoints(event) || isZoomed(scale)) {
       eventPreventDefault(event)
@@ -98,7 +101,6 @@ export default class ReactPinchToZoom extends PureComponent {
 
   onTouchMove = event => {
     if (this.touching || this.touches > 1) {
-      console.log('stop prop')
       event.stopPropagation()
     }
 
@@ -122,15 +124,11 @@ export default class ReactPinchToZoom extends PureComponent {
       let scaleFactorX = ((size.width * scale) - size.width) / (scale * 2)
       let scaleFactorY = ((size.height * scale) - size.height) / (scale * 2)
 
-      console.log('DONT SCALE, PAN')
-
       next = {
         x: between(inverse(scaleFactorX), scaleFactorX, movePoint.x - startPoint.x + this.startX),
         y: between(inverse(scaleFactorY), scaleFactorY, movePoint.y - startPoint.y + this.startY)
       }
     }
-
-    console.log('NEXT STATE', next)
 
     window.requestAnimationFrame(() => this.setState(next))
   }
@@ -138,17 +136,18 @@ export default class ReactPinchToZoom extends PureComponent {
   onTouchEnd = event => {
     this.touches = this.touches - 1
 
-    const next = {}
-
     if (this.touches === 0) {
       this.touching = false
+
+      const next = {}
+
       next.scale = this.props.initialScale
+
+      next.x = 0
+      next.y = 0
+
+      this.setState(next)
     }
-
-    next.x = 0
-    next.y = 0
-
-    this.setState(next)
   }
 
   render () {
