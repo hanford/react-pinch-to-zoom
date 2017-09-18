@@ -137,7 +137,7 @@ export default class ReactPinchToZoom extends PureComponent {
   onTouchEnd = event => {
     this.touches = this.touches - 1
 
-    if (this.touches === 0) {
+    if (this.touches === 0 || !event.touches[0]) {
       this.touching = false
 
       this.setState({ x: 0, y: 0, scale: this.props.initialScale })
