@@ -122,6 +122,9 @@ The component exposes a prop to set the `initialScale`. This can be used to disp
 </Pinch>
 ```
 
+## Example Gif
+![preview](https://github.com/hanford/react-pinch-to-zoom/blob/master/example.gif)
+
 ## Discussion
 
 Thanks to [gerhardsletten](https://github.com/gerhardsletten) for idea / initial code.
