@@ -20,10 +20,9 @@ export default class ReactPinchToZoom extends PureComponent {
     maxScale: PropTypes.number
   }
 
-  startX = 0
-  startY = 0
   touching = false
   touches = 0
+  start = null
 
   state = {
     scale: this.props.initialScale,
@@ -78,25 +77,19 @@ export default class ReactPinchToZoom extends PureComponent {
   }
 
   onTouchStart = event => {
-    if (!hasTwoTouchPoints(event)) return
+    if (!hasTwoTouchPoints(event) || event.touches.length === 0) return
 
     event.stopPropagation()
 
-    const { scale, x, y } = this.state
-
-    if (this.touches === 0) {
-      this.firstEvent = event
-
-      this.startX = x
-      this.startY = y
-    }
-
-    if (hasTwoTouchPoints(event) || isZoomed(scale)) {
-      eventPreventDefault(event)
-    }
+    const { scale } = this.state
 
     this.touching = true
+    this.start = normalizeTouch(event)
     this.touches = getTouchCount(event)
+
+    if (hasTwoTouchPoints(event) || isZoomed(scale)) {
+      event.preventDefault()
+    }
   }
 
   onTouchMove = event => {
@@ -104,19 +97,19 @@ export default class ReactPinchToZoom extends PureComponent {
       event.stopPropagation()
     }
 
-    const startPoint = normalizeTouch(this.firstEvent)
+    const movePoint = normalizeTouch(event)
+
     const { size, scale, x, y } = this.state
     const { maxScale } = this.props
 
-    const movePoint = normalizeTouch(event)
     let next = {}
 
     if (hasTwoTouchPoints(event)) {
-      const scaleFactor = (isTouch() && event.scale) ? event.scale : (movePoint.x < (size.width / 2)) ? scale + ((translatePos(startPoint, size).x - translatePos(movePoint, size).x) / size.width) : scale + ((translatePos(movePoint, size).x - translatePos(startPoint, size).x) / size.width)
+      const scaleFactor = (isTouch() && event.scale) ? event.scale : (movePoint.x < (size.width / 2)) ? scale + ((translatePos(this.start, size).x - translatePos(movePoint, size).x) / size.width) : scale + ((translatePos(movePoint, size).x - translatePos(this.start, size).x) / size.width)
       const nextScale = between(1, maxScale, scaleFactor)
 
       next = {
-        scale: nextScale,
+        scale: nextScale.toFixed(2),
         x: (nextScale < 1.01) ? 0 : x,
         y: (nextScale < 1.01) ? 0 : y
       }
@@ -125,8 +118,8 @@ export default class ReactPinchToZoom extends PureComponent {
       let scaleFactorY = ((size.height * scale) - size.height) / (scale * 2)
 
       next = {
-        x: between(inverse(scaleFactorX), scaleFactorX, movePoint.x - startPoint.x + this.startX),
-        y: between(inverse(scaleFactorY), scaleFactorY, movePoint.y - startPoint.y + this.startY)
+        x: between(inverse(scaleFactorX), scaleFactorX, movePoint.x - this.start.x),
+        y: between(inverse(scaleFactorY), scaleFactorY, movePoint.y - this.start.y)
       }
     }
 
@@ -139,14 +132,7 @@ export default class ReactPinchToZoom extends PureComponent {
     if (this.touches === 0) {
       this.touching = false
 
-      const next = {}
-
-      next.scale = this.props.initialScale
-
-      next.x = 0
-      next.y = 0
-
-      this.setState(next)
+      this.setState({ x: 0, y: 0, scale: this.props.initialScale })
     }
   }
 
@@ -157,10 +143,6 @@ export default class ReactPinchToZoom extends PureComponent {
       </div>
     )
   }
-}
-
-function eventPreventDefault (event) {
-  event.preventDefault()
 }
 
 function isTouch () {

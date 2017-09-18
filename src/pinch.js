@@ -37,7 +37,7 @@ class Pinch extends Component {
       align: 'center',
       display: 'flex',
       alignItems: 'center',
-      transform: `scale(${pos.scale}) translateY(${pos.y}px)translateX(${pos.x}px)`,
+      transform: `scale(${pos.scale}) translateY(${pos.y}px) translateX(${pos.x}px)`,
       transition: '.3s ease-out'
     }
   }
