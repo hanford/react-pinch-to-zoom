@@ -6,9 +6,9 @@ import { ReactPinchZoomPan } from './'
 class Pinch extends Component {
   getContainerStyle () {
     const {backgroundColor, containerRatio} = this.props
+
     return {
       paddingTop: containerRatio.toFixed(2) + '%',
-      overflow: 'hidden',
       position: 'relative',
       background: backgroundColor
     }
@@ -30,22 +30,22 @@ class Pinch extends Component {
     }
   }
 
-  getContentStyle (obj) {
+  getContentStyle (pos) {
     return {
       width: '100%',
       height: '100%',
       align: 'center',
       display: 'flex',
       alignItems: 'center',
-      transform: `scale(${obj.scale}) translateY(${obj.y}px)translateX(${obj.x}px)`,
+      transform: `scale(${pos.scale}) translateY(${pos.y}px)translateX(${pos.x}px)`,
       transition: '.3s ease-out'
     }
   }
 
-  renderDebug (obj) {
+  renderDebug (pos) {
     return (
       <div style={{position: 'absolute', bottom: 0, left: 0, background: '#555', color: '#fff', padding: '3px 6px'}}>
-        Scale: {obj.scale}, X: {obj.x}, Y: {obj.y}
+        Scale: {pos.scale}, X: {pos.x}, Y: {pos.y}
       </div>
     )
   }
@@ -53,17 +53,17 @@ class Pinch extends Component {
   render () {
     const {debug, initialScale, maxScale, holderClassName, containerClassName, children, onPinchStart, onPinchStop} = this.props
     return (
-      <ReactPinchZoomPan initialScale={initialScale} maxScale={maxScale} render={(obj) => {
+      <ReactPinchZoomPan initialScale={initialScale} maxScale={maxScale} render={(pos) => {
         return (
           <div style={this.getHolderStyle()} className={holderClassName}>
             <div style={this.getContainerStyle()} className={containerClassName}>
               <div style={this.getInnerStyle()}>
-                <div style={s(this.getContentStyle(obj))}>
+                <div style={s(this.getContentStyle(pos))}>
                   {children}
                 </div>
               </div>
             </div>
-            {debug && this.renderDebug(obj)}
+            {debug && this.renderDebug(pos)}
           </div>
         )
       }} onPinchStart={onPinchStart} onPinchStop={onPinchStop} />
@@ -75,7 +75,7 @@ Pinch.defaultProps = {
   initialScale: 1,
   maxScale: 2,
   containerRatio: 100,
-  backgroundColor: '#f2f2f2',
+  backgroundColor: '#fff',
   debug: false
 }
 
