@@ -9,13 +9,17 @@ export default class ReactPinchToZoom extends PureComponent {
 
   static defaultProps = {
     initialScale: 1,
-    maxScale: 4
+    maxScale: 4,
+    onPinchMove: () => {},
+    onPinchStart: () => {},
+    onPinchStop: () => {},
   }
 
   static propTypes = {
     render: PropTypes.func,
     onPinchStart: PropTypes.func,
     onPinchStop: PropTypes.func,
+    onPinchMove: PropTypes.func,
     initialScale: PropTypes.number,
     maxScale: PropTypes.number
   }
@@ -28,7 +32,8 @@ export default class ReactPinchToZoom extends PureComponent {
     scale: this.props.initialScale,
     x: 0,
     y: 0,
-    listeners: false
+    listeners: false,
+    size: {}
   }
 
   resize () {
@@ -82,6 +87,9 @@ export default class ReactPinchToZoom extends PureComponent {
     event.stopPropagation()
 
     const { scale } = this.state
+    const { onPinchStart } = this.props
+
+    onPinchStart(this.state)
 
     this.touching = true
     this.start = normalizeTouch(event)
@@ -100,7 +108,7 @@ export default class ReactPinchToZoom extends PureComponent {
     const movePoint = normalizeTouch(event)
 
     const { size, scale, x, y } = this.state
-    const { maxScale } = this.props
+    const { maxScale, onPinchMove } = this.props
 
     let next = {}
 
@@ -123,7 +131,7 @@ export default class ReactPinchToZoom extends PureComponent {
       }
     }
 
-    window.requestAnimationFrame(() => this.setState(next))
+    window.requestAnimationFrame(() => this.setState(next, () => onPinchMove(this.state)))
   }
 
   onTouchEnd = event => {

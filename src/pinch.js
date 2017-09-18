@@ -51,7 +51,7 @@ class Pinch extends Component {
   }
 
   render () {
-    const {debug, initialScale, maxScale, holderClassName, containerClassName, children, onPinchStart, onPinchStop} = this.props
+    const {debug, initialScale, maxScale, holderClassName, containerClassName, children, onPinchStart, onPinchMove, onPinchStop} = this.props
     return (
       <ReactPinchZoomPan initialScale={initialScale} maxScale={maxScale} render={(pos) => {
         return (
@@ -66,7 +66,7 @@ class Pinch extends Component {
             {debug && this.renderDebug(pos)}
           </div>
         )
-      }} onPinchStart={onPinchStart} onPinchStop={onPinchStop} />
+      }} onPinchStart={onPinchStart} onPinchStop={onPinchStop} onPinchMove={onPinchMove} />
     )
   }
 }
@@ -89,6 +89,7 @@ Pinch.propTypes = {
   backgroundColor: PropTypes.string,
   debug: PropTypes.bool,
   onPinchStart: PropTypes.func,
+  onPinchMove: PropTypes.func,
   onPinchStop: PropTypes.func
 }
 
